@@ -4,29 +4,50 @@ module sqt_insert(size, rounding)
    cube_v = [size[0] - rounding, size[1] - 2*rounding, size[2] - 2*rounding];
    difference()
    {
-       intersection()
+       union()
        {
-          translate([-0.5*rounding, 0, 0])
-          {
-             minkowski()
-             {
-                 cube(cube_v, center=true);
-                 sphere(rounding);
+           intersection()
+           {
+              translate([-0.5*rounding, 0, 0])
+              {
+                 minkowski()
+                 {
+                     cube(cube_v, center=true);
+                     sphere(rounding);
 
-             }
-          }
-          //Slice off one edge to make it flat
-          translate([0, 0, 0])
-          {
-             cube(size, center=true);
-          }
+                 }
+              }
+              //Slice off one edge to make it flat
+              translate([0, 0, 0])
+              {
+                 cube(size, center=true);
+              }
+           }
+
+           // Tabs for good fit
+           minkowski()
+           {
+               cube([cube_v[0] - 2 * rounding, cube_v[1] + cube_v[1] / 10, cube_v[2] / 10], center=true);
+               sphere(rounding);
+           }
+           minkowski()
+           {
+               difference()
+               {
+                   cube([cube_v[0] - 2 * rounding, 6 * cube_v[1] / 10, cube_v[2] + cube_v[2] / 10], center=true);
+                   cube([cube_v[0] - 2 * rounding, 2 * hole_d, cube_v[2] + cube_v[2] / 10], center=true);
+               }
+               sphere(rounding);
+           }
        }
 
+       // Hole for fastening
        translate([0, 0, -size[2] / 2 - 1])
        {
          cylinder(r=(hole_d / 2), h=size[1] + 2);
        }
    }
+
 
 }
 
@@ -86,6 +107,7 @@ module sqt_3_way_rotated(size, wall_thickness, insert_rounding)
 }
 
 // You can use the following statements to display the correct connector
+*sqt_insert(size=[25, 25, 25], rounding=2);
 *sqt_connector(size=25, wall_thickness=1.6, ways=1);
 *sqt_connector(size=25, wall_thickness=1.6, ways=2);
 *sqt_connector(size=25, wall_thickness=1.6, ways=3, flat=true);
